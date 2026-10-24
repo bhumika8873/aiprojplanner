@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AI-Based Smart Study Planner</title>
+<style>
+:root{--bg:#f5f7fb;--panel:#fff;--ink:#182230;--muted:#697586;--brand:#5b5ce2;--line:#e7eaf2}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;color:var(--ink)}
+header{background:linear-gradient(120deg,#292a75,#5b5ce2);color:white;padding:26px max(20px,calc((100% - 1120px)/2))}
+.brand{font-size:13px;letter-spacing:2px;text-transform:uppercase;opacity:.8;font-weight:700}h1{margin:8px 0;font-size:clamp(25px,4vw,38px)}header p{margin:0;color:#e2e3ff;max-width:720px;line-height:1.5}
+main{max-width:1120px;margin:24px auto;padding:0 18px 48px}.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px}
+.card,.panel{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;box-shadow:0 4px 18px #2222}
+.stat-label{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase;letter-spacing:.7px}.stat-value{font-size:28px;font-weight:800;margin-top:8px}
+.layout{display:grid;grid-template-columns:1.05fr .95fr;gap:18px}.panel h2{font-size:18px;margin:0 0 14px}.sub{font-size:13px;color:var(--muted);margin:-7px 0 15px}
+label{display:block;font-size:12px;font-weight:700;color:#536071;margin:10px 0 6px}input,select{width:100%;padding:11px 12px;border:1px solid #dce1ec;border-radius:10px;background:#fff;font:inherit;color:var(--ink)}.formgrid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+button{border:0;border-radius:10px;padding:11px 14px;background:var(--brand);color:white;font-weight:700;cursor:pointer}button:hover{filter:brightness(.95)}button.secondary{background:#eef0ff;color:#4243b8}.full{width:100%;margin-top:14px}.task{display:flex;gap:12px;align-items:flex-start;padding:13px 0;border-bottom:1px solid var(--line)}.task:last-child{border-bottom:0}.task input{width:auto;margin-top:5px}.task-title{font-weight:750}.task-meta{font-size:12px;color:var(--muted);margin-top:5px;line-height:1.5}.task.done .task-title{text-decoration:line-through;color:#8993a2}.pill{display:inline-block;padding:3px 8px;border-radius:99px;font-size:11px;font-weight:800;background:#eef0ff;color:#494ac1;margin-left:5px}.pill.High{background:#fff0e3;color:#a54b00}.pill.Medium{background:#fff8d9;color:#8b6900}.pill.Low{background:#e5f7ef;color:#16714c}
+.schedule-item{display:grid;grid-template-columns:85px 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}.time{font-size:12px;color:var(--brand);font-weight:800}.schedule-item strong{display:block}.schedule-item small{color:var(--muted)}.empty{padding:24px 12px;text-align:center;color:var(--muted);font-size:14px}.notice{font-size:12px;color:var(--muted);line-height:1.5;margin-top:12px}.timer{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#f0f0ff;padding:14px;border-radius:12px;margin-top:16px}.timer strong{font-size:25px;font-variant-numeric:tabular-nums}.timer button{padding:9px 12px}.footer{text-align:center;color:var(--muted);font-size:12px;padding:10px}
+@media(max-width:760px){.stats{grid-template-columns:repeat(2,1fr)}.layout{grid-template-columns:1fr}}
+</style></head>
+<body>
+<header><div class="brand">Student productivity</div><h1>Your smarter study routine starts here.</h1><p>Plan revision around your exams, break subjects into focused sessions, and track your progress in one simple dashboard.</p></header>
+<main>
+<section class="stats">
+<div class="card"><div class="stat-label">Tasks planned</div><div class="stat-value" id="totalStat">0</div></div>
+<div class="card"><div class="stat-label">Completed</div><div class="stat-value" id="doneStat">0</div></div>
+<div class="card"><div class="stat-label">Study hours planned</div><div class="stat-value" id="hoursStat">0h</div></div>
+<div class="card"><div class="stat-label">Completion rate</div><div class="stat-value" id="rateStat">0%</div></div>
+</section>
+<section class="layout">
+<div class="panel"><h2>Build your study plan</h2><p class="sub">Add a topic, deadline, and estimated study time.</p>
+<form id="taskForm">
+<label for="subject">Subject</label><input id="subject" placeholder="e.g. Computer Organization" required>
+<label for="topic">Topic / task</label><input id="topic" placeholder="e.g. Cache memory revision" required>
+<div class="formgrid"><div><label for="date">Target date</label><input id="date" type="date" required></div><div><label for="duration">Duration (minutes)</label><input id="duration" type="number" min="15" max="480" step="15" value="45" required></div></div>
+<div class="formgrid"><div><label for="priority">Priority</label><select id="priority"><option>High</option><option selected>Medium</option><option>Low</option></select></div><div><label for="difficulty">Difficulty</label><select id="difficulty"><option>Easy</option><option selected>Moderate</option><option>Hard</option></select></div></div>
+<button class="full" type="submit">＋ Add to study plan</button></form>
+<div class="timer"><div><div class="stat-label">Focus timer · Pomodoro</div><strong id="timerDisplay">25:00</strong></div><div><button id="timerToggle">Start</button> <button class="secondary" id="timerReset">Reset</button></div></div>
+<p class="notice">Tip: focus for 25 minutes, then take a 5-minute break. The timer runs while this page stays open.</p></div>
+<div class="panel"><h2>Suggested plan for today</h2><p class="sub">A priority-based plan generated from your pending tasks.</p><div id="scheduleList"><div class="empty">Add a task to generate your study plan.</div></div><button class="secondary full" id="generateBtn">Refresh suggested plan</button><p class="notice">Planning logic: tasks with higher priority, harder difficulty, and closer deadlines are placed earlier. This is a rule-based planning assistant, not a trained AI model.</p></div>
+</section>
+<section class="panel" style="margin-top:18px"><h2>Your tasks</h2><p class="sub">Mark topics complete as you finish them.</p><div id="taskList"><div class="empty">No tasks yet. Add your first study task above.</div></div></section>
+<div class="footer">A student project prototype · Your data is stored in this browser using local storage.</div>
+</main>
+<script>
+const $=id=>document.getElementById(id);let tasks=JSON.parse(localStorage.getItem('study_planner_tasks')||'[]');const today=new Date();$('date').value=today.toISOString().slice(0,10);
+function save(){localStorage.setItem('study_planner_tasks',JSON.stringify(tasks));render()}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function rank(t){return ({High:3,Medium:2,Low:1}[t.priority]||1)*3+({Hard:3,Moderate:2,Easy:1}[t.difficulty]||1)+(t.date<new Date().toISOString().slice(0,10)?5:0)}
+function render(){const done=tasks.filter(t=>t.done).length,hours=tasks.reduce((s,t)=>s+Number(t.duration),0)/60;$('totalStat').textContent=tasks.length;$('doneStat').textContent=done;$('hoursStat').textContent=(Math.round(hours*10)/10)+'h';$('rateStat').textContent=(tasks.length?Math.round(done/tasks.length*100):0)+'%';$('taskList').innerHTML=tasks.length?[...tasks].sort((a,b)=>a.date.localeCompare(b.date)).map(t=>`<div class="task ${t.done?'done':''}"><input type="checkbox" aria-label="Mark complete" ${t.done?'checked':''} onchange="toggleTask('${t.id}')"><div style="flex:1"><div class="task-title">${esc(t.topic)} <span class="pill ${t.priority}">${t.priority}</span></div><div class="task-meta">${esc(t.subject)} · ${t.duration} min · ${esc(t.difficulty)} · Due ${esc(t.date)}</div></div><button onclick="deleteTask('${t.id}')">Delete</button></div>`).join(''):'<div class="empty">No tasks yet. Add your first study task above.</div>';generate()}
+function generate(){const pending=tasks.filter(t=>!t.done).sort((a,b)=>rank(b)-rank(a)||a.date.localeCompare(b.date));$('scheduleList').innerHTML=pending.length?pending.slice(0,6).map((t,i)=>`<div class="schedule-item"><div class="time">${['09:00','10:00','11:15','14:00','15:15','16:15'][i]}</div><div><strong>${esc(t.topic)}</strong><small>${esc(t.subject)} · ${t.duration} min · due ${esc(t.date)}</small></div></div>`).join(''):'<div class="empty">All caught up! Add a task or enjoy your break.</div>'}
+$('taskForm').addEventListener('submit',e=>{e.preventDefault();tasks.push({id:Date.now().toString(),subject:$('subject').value.trim(),topic:$('topic').value.trim(),date:$('date').value,duration:Number($('duration').value),priority:$('priority').value,difficulty:$('difficulty').value,done:false});e.target.reset();$('date').value=today.toISOString().slice(0,10);$('duration').value=45;$('priority').value='Medium';$('difficulty').value='Moderate';save()});
+window.toggleTask=id=>{tasks=tasks.map(t=>t.id===id?{...t,done:!t.done}:t);save()};window.deleteTask=id=>{tasks=tasks.filter(t=>t.id!==id);save()};$('generateBtn').onclick=generate;
+let seconds=1500,interval=null;function showTimer(){$('timerDisplay').textContent=String(Math.floor(seconds/60)).padStart(2,'0')+':'+String(seconds%60).padStart(2,'0')}
+$('timerToggle').onclick=()=>{if(interval){clearInterval(interval);interval=null;$('timerToggle').textContent='Resume'}else{$('timerToggle').textContent='Pause';interval=setInterval(()=>{if(seconds>0){seconds--;showTimer()}else{clearInterval(interval);interval=null;$('timerToggle').textContent='Start';alert('Focus session complete! Take a 5-minute break.')}},1000)}};
+$('timerReset').onclick=()=>{clearInterval(interval);interval=null;seconds=1500;showTimer();$('timerToggle').textContent='Start'};render();showTimer();
+</script></body></html>
